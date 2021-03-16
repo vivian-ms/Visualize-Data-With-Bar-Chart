@@ -50,4 +50,30 @@ function createBars(svg, data) {
     .attr('data-date', d => d[0])
     .attr('data-gdp', d => d[1])
     .classed('bar', true);
+
+  createAxes(svg, xScale, yScale);
 }  // End createBars
+
+
+function createAxes(svg, xScale, yScale) {
+  let xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%Y'));
+  svg.append('g')
+     .attr('id', 'x-axis')
+     .attr('transform', `translate(0, ${h})`)
+     .call(xAxis);
+  svg.append('text')
+     .attr('text-anchor', 'middle')
+     .attr('transform', `translate(${w / 2}, ${h + 45})`)
+     .attr('font-size', '1rem')
+     .text('Year (1947 Q1 - 2015 Q3)');
+
+  let yAxis = d3.axisLeft(yScale);
+  svg.append('g')
+     .attr('id', 'y-axis')
+     .call(yAxis);
+  svg.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('transform', `translate(-50, ${h / 2}) rotate(-90)`)
+    .attr('font-size', '1rem')
+    .text('Gross Domestic Product (in billions of dollars)');
+}  // End createAxes
