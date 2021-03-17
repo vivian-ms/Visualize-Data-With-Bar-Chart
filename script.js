@@ -4,6 +4,7 @@ const h = 450;
 const xPadding = 100;
 const yPadding = 50;
 const bar_color = 'slateblue';
+const hover_bar_color = 'mediumpurple';
 
 
 const xhr = new XMLHttpRequest();
@@ -38,6 +39,12 @@ function createBars(svg, data) {
                    .domain([0, d3.max(data, d => d[1])])
                    .range([h, 0]);
 
+  let tooltip = d3.select('#svg_container')
+                 .append('div')
+                 .attr('id', 'tooltip')
+                 .style('position', 'absolute')
+                 .style('opacity', 0);
+
   svg.selectAll('rect')
     .data(data)
     .enter()
@@ -49,7 +56,30 @@ function createBars(svg, data) {
     .attr('fill', bar_color)
     .attr('data-date', d => d[0])
     .attr('data-gdp', d => d[1])
-    .classed('bar', true);
+    .classed('bar', true)
+    .on('mouseover', (evt, d) => {
+      let month = d[0].substring(5, 7);
+      let qtr = month === '01' ? 'Q1' : month === '04' ? 'Q2' : month === '07' ? 'Q3' : month === '10' ? 'Q4' : '';
+
+      d3.select(evt.currentTarget).transition()
+        .duration('50')
+        .attr('fill', hover_bar_color);
+      tooltip.transition()
+             .duration('50')
+             .style('opacity', '1')
+             .style('left', `${evt.x}px`)
+             .style('top', `${d3.select(evt.currentTarget).attr('y')}px`);
+      tooltip.attr('data-date', d[0])
+             .html(`${d[0].substring(0, 4)} ${qtr} <br /> $${d3.format(',')(d[1])} billion`);
+    })
+    .on('mouseout', (evt, d) => {
+      d3.select(evt.currentTarget).transition()
+        .duration('50')
+        .attr('fill', bar_color);
+      tooltip.transition()
+             .duration('50')
+             .style('opacity', '0');
+    });
 
   createAxes(svg, xScale, yScale);
 }  // End createBars
